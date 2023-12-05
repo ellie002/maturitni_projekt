@@ -1,5 +1,5 @@
 #include <Adafruit_NeoPixel.h>
-#define INPUT_PIN 8
+#define INPUT_PIN 15
 #define NUM_OF_LED 12
 Adafruit_NeoPixel rgbWS = Adafruit_NeoPixel(NUM_OF_LED, INPUT_PIN, NEO_GRB + NEO_KHZ800);
 void setup() {
