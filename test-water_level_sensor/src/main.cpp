@@ -1,10 +1,3 @@
-/*
- * Created by ArduinoGetStarted.com
- *
- * This example code is in the public domain
- *
- * Tutorial page: https://arduinogetstarted.com/tutorials/arduino-water-sensor
- */
 #include <Arduino.h>
 #define POWER_PIN  7
 #define SIGNAL_PIN A5
