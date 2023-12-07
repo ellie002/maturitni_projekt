@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#define POWER_PIN  7
-#define SIGNAL_PIN A5
+#define POWER_PIN 14
+#define SIGNAL_PIN 0
 
 int value = 0; // variable to store the sensor value
 

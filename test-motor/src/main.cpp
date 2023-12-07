@@ -1,13 +1,20 @@
 #include <Arduino.h>
 
+#define MOTORPIN 12
+
 int mode = 0;
 
 void setup() {
-  pinMode(6, OUTPUT);
+  pinMode(MOTORPIN, OUTPUT);
 }
 
 void loop() {
-  mode = !mode;
-  digitalWrite(6, HIGH);
+  if(mode == 1){
+    digitalWrite(MOTORPIN, LOW);
+    mode = 0;
+  }else{
+    digitalWrite(MOTORPIN, HIGH);
+    mode = 1;
+  }
   delay(5000);
 }
