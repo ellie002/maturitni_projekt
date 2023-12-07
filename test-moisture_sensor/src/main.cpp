@@ -1,15 +1,23 @@
 #include <Arduino.h>
-#define AOUT_PIN A0 // Arduino pin that connects to AOUT pin of moisture sensor
+#define POWER_PIN 4
+#define SIGNAL_PIN 5
+
+int value = 0; // variable to store the sensor value
 
 void setup() {
   Serial.begin(9600);
+  pinMode(POWER_PIN, OUTPUT);   // configure D7 pin as an OUTPUT
+  digitalWrite(POWER_PIN, LOW); // turn the sensor OFF
 }
 
 void loop() {
-  int value = analogRead(AOUT_PIN); // read the analog value from sensor
+  digitalWrite(POWER_PIN, HIGH);  // turn the sensor ON
+  delay(10);                      // wait 10 milliseconds
+  value = analogRead(SIGNAL_PIN); // read the analog value from sensor
+  digitalWrite(POWER_PIN, LOW);   // turn the sensor OFF
 
-  Serial.print("Moisture: ");
+  Serial.print("Sensor value: ");
   Serial.println(value);
 
-  delay(500);
+  delay(1000);
 }
