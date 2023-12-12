@@ -27,12 +27,3 @@ Tento projekt obsahuje automatický zavlažovací systém, jehož hodnoty lze sl
  - Petr Grussmann
 
 ---
-
-### Časový harmonogram
-
-**Září**
- - [ ] Pořízení elektrických komponentů
- - [ ] 3D tisk komponentů květináče
-
-**Říjen**
- - [ ] Studium ovládání ESP8266
