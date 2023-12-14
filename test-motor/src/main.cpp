@@ -6,6 +6,7 @@ int mode = 0;
 
 void setup() {
   pinMode(MOTORPIN, OUTPUT);
+  Serial.begin(9600);
 }
 
 void loop() {
@@ -17,4 +18,5 @@ void loop() {
     mode = 1;
   }
   delay(5000);
+  Serial.println(mode);
 }

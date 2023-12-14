@@ -1,15 +1,15 @@
 /* Fill-in information from Blynk Device Info here */
 #define BLYNK_PRINT Serial
-#define BLYNK_TEMPLATE_ID           "TMPL4jtmBx5Zl"
-#define BLYNK_TEMPLATE_NAME         "Quickstart Template"
-#define BLYNK_AUTH_TOKEN            "TJsWSVy402S3jDwXFf5KV-uAaPqMM16q"
+#define BLYNK_TEMPLATE_ID "TMPL4QDiILS43"
+#define BLYNK_TEMPLATE_NAME "Kvetinac"
+#define BLYNK_AUTH_TOKEN "OALjQD1FsXxNC3k9mMpDmtoBpav0vKWH"
 
 #include <ESP8266WiFi.h>
 #include <FastLED.h>
 #include <BlynkSimpleEsp8266.h>
 
-char ssid[] = "SSPUOpava";
-char pass[] = "";
+char ssid[] = "E_#&";
+char pass[] = "fuckingpassword";
 
 #define LED_PIN     15  // D8 pin - Wemos D1 Mini
 #define LED_COUNT   12  // Number of LEDs in your NeoPixel ring
@@ -69,6 +69,18 @@ int readWaterLevel();
 int readMoisture();
 void ultravioletEffect();
 
+int Relay;
+
+BLYNK_WRITE(V1) {
+  Relay = param.asInt();
+
+  if (Relay == 1) {
+    Serial.println("Hello");
+  } else {
+    Serial.println("Off");
+  }
+}
+
 void loop() {
   // Run the Blynk app.
   Blynk.run();
@@ -87,13 +99,13 @@ void loop() {
   /* Get the value from the soil moisture sensor function 
   when the defined time range is complete */
   int MOISTURE_LEVEL = readMoisture();
+  Blynk.virtualWrite(V0, MOISTURE_LEVEL);
+  Serial.println(MOISTURE_LEVEL);
 
   /* If the soil moisture is HIGH, report everything as perfect! */
   /* The sensor value works inversely! */
   if (MOISTURE_LEVEL == LOW) {
     Serial.println("Moisture is perfect");
-    Blynk.virtualWrite(V1, "Moisture is perfect");
-    Blynk.virtualWrite(V3, "The water pump is on standby!");
 
     /* If the soil moisture value is LOW, report it and 
   run the water pump motor for the defined pump time, 
@@ -113,7 +125,6 @@ void loop() {
   } else {
     Serial.println("Water level is low! Time to add water!");
   }
-  Blynk.virtualWrite(V2, percentLevel);
 
   /* It is the last line of the Loop Function, 
   the Loop Function is executed from the beginning... */
