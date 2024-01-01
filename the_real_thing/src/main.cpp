@@ -1,19 +1,9 @@
-/* Fill-in information from Blynk Device Info here */
-#define BLYNK_PRINT Serial
-#define BLYNK_TEMPLATE_ID "TMPL4QDiILS43"
-#define BLYNK_TEMPLATE_NAME "Kvetinac"
-#define BLYNK_AUTH_TOKEN "OALjQD1FsXxNC3k9mMpDmtoBpav0vKWH"
-
-#include <ESP8266WiFi.h>
 #include <FastLED.h>
-#include <BlynkSimpleEsp8266.h>
-
-char ssid[] = "ESPNet";
-char pass[] = "";
 
 #define LED_PIN     15  // D8 pin - Wemos D1 Mini
 #define LED_COUNT   12  // Number of LEDs in your NeoPixel ring
 #define BRIGHTNESS  45  // LED brightness (0-255 range)
+#define WATER_MIN   470
 
 CRGB leds[LED_COUNT];
 
@@ -27,23 +17,24 @@ CRGB leds[LED_COUNT];
 /* Define how long the pump will run (3 seconds) */
 #define PUMP_TIME 3000
 
-/* Change these values based on your calibration values */
-#define LVL_HIGH 520  // Define max value water level
-#define LVL_LOW 470   // Define min value of water level
+void lights(int, int, int);
+int waterSensor();
+int moistureSensor();
+
+unsigned long time;
+unsigned long lastCheckSensor;
+const unsigned long delaySensor = 5000;
+unsigned long wateringCheck;
+const unsigned long wateringDelay = 300000;
+
+int lastWaterLevelCheck;
+
+int waterLevel;
+int moistureLevel;
 
 void setup() {
-  Serial.begin(115200);
-  WiFi.begin(ssid, pass);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.print("Wi-Fi connected: ");
-  Serial.println(WiFi.localIP());
-
-  Blynk.config(BLYNK_AUTH_TOKEN);
-
+  Serial.begin(9600);
+  
   pinMode(WATER_PWR, OUTPUT);
   pinMode(WATER_PIN, INPUT);
   pinMode(MOISTURE_PWR, OUTPUT);
@@ -61,18 +52,53 @@ void setup() {
   FastLED.clear();
 }
 
-/* Ultraviolet color function (You can adjust the values here to get the desired color) */
-void ultravioletEffect() {
-  CRGB uvColor(138, 43, 226);
-  // Turn on all LEDs with the ultraviolet color
-  fill_solid(leds, LED_COUNT, uvColor);
+void loop() {
+  time = millis();
+  if (time-lastCheckSensor >= delaySensor) {
+    lastCheckSensor = time;
+    waterLevel = waterSensor();
+    moistureLevel = moistureSensor();
+  }
+  if (time-wateringCheck >= wateringDelay) {
+    wateringCheck = time;
+    if (moistureLevel == LOW) {
+      Serial.println("Good enough :)");
+    }else {
+      Serial.println("Not good honey");
+      digitalWrite(WATER_PUMP, HIGH);
+    }
+  }
+  if (time-wateringCheck >= PUMP_TIME && time-wateringCheck < wateringDelay) {
+    digitalWrite(WATER_PUMP, LOW);
+  }
+  if (lastWaterLevelCheck != waterLevel) {
+    lastWaterLevelCheck = waterLevel;
+    if(waterLevel >= WATER_MIN && waterLevel <= WATER_MAX) {
+      Serial.println("Yea enough water baby");
+      lights(37, 112, 15);
+    }else {
+      Serial.println("SHE DRY, NEED WATER");
+      lights(247, 29, 5);
+    }
+  }
+}
+
+void lights(int red, int green, int blue) {
+  CRGB color(red, green, blue);
+  fill_solid(leds, LED_COUNT, color);
   FastLED.show();
 }
 
-void loop() {
-  // Run the Blynk app.
-  Blynk.run();
-  // Run the LED function
-  ultravioletEffect();
-  
+int waterSensor() {
+  digitalWrite(WATER_PWR, HIGH);
+  int sensorValue = analogRead(WATER_PIN);
+  digitalWrite(WATER_PWR, LOW);
+  return sensorValue;
+}
+
+int moistureSensor() {
+  digitalWrite(MOISTURE_PWR, HIGH);
+  int sensorValue = digitalRead(MOISTURE_PIN);
+  digitalWrite(MOISTURE_PWR, LOW);
+  return sensorValue;
 }
