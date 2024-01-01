@@ -1,9 +1,11 @@
 #include <FastLED.h>
+#include <Arduino.h>
+
 
 #define LED_PIN     15  // D8 pin - Wemos D1 Mini
 #define LED_COUNT   12  // Number of LEDs in your NeoPixel ring
 #define BRIGHTNESS  45  // LED brightness (0-255 range)
-#define WATER_MIN   470
+#define WATER_MIN   50
 
 CRGB leds[LED_COUNT];
 
@@ -18,14 +20,17 @@ CRGB leds[LED_COUNT];
 #define PUMP_TIME 3000
 
 void lights(int, int, int);
+void startSensors();
 int waterSensor();
 int moistureSensor();
 
-unsigned long time;
+unsigned long currentTime;
 unsigned long lastCheckSensor;
 const unsigned long delaySensor = 5000;
+const int delaySensorValue = 50;
+bool sensors = false;
 unsigned long wateringCheck;
-const unsigned long wateringDelay = 300000;
+const unsigned long wateringDelay = 10000;
 
 int lastWaterLevelCheck;
 
@@ -53,34 +58,44 @@ void setup() {
 }
 
 void loop() {
-  time = millis();
-  if (time-lastCheckSensor >= delaySensor) {
-    lastCheckSensor = time;
+  currentTime = millis();
+
+  if (currentTime-lastCheckSensor >= delaySensor) {
+    lastCheckSensor = currentTime;
+    sensors = true;
+    startSensors();
+  }else if(currentTime-lastCheckSensor >= delaySensorValue && sensors == true) {
+    sensors = false;
     waterLevel = waterSensor();
     moistureLevel = moistureSensor();
   }
-  if (time-wateringCheck >= wateringDelay) {
-    wateringCheck = time;
+
+  if (currentTime-wateringCheck >= wateringDelay) {
+    wateringCheck = currentTime;
     if (moistureLevel == LOW) {
-      Serial.println("Good enough :)");
+      Serial.println("She is happy:)");
     }else {
-      Serial.println("Not good honey");
+      Serial.println("SHE DRY, NEED WATER");
       digitalWrite(WATER_PUMP, HIGH);
     }
   }
-  if (time-wateringCheck >= PUMP_TIME && time-wateringCheck < wateringDelay) {
+
+  if (currentTime-wateringCheck >= PUMP_TIME && currentTime-wateringCheck < wateringDelay) {
     digitalWrite(WATER_PUMP, LOW);
   }
+
   if (lastWaterLevelCheck != waterLevel) {
     lastWaterLevelCheck = waterLevel;
-    if(waterLevel >= WATER_MIN && waterLevel <= WATER_MAX) {
+    if(waterLevel >= WATER_MIN) {
       Serial.println("Yea enough water baby");
       lights(37, 112, 15);
     }else {
-      Serial.println("SHE DRY, NEED WATER");
+      Serial.println("ADD WATER NOW");
+      Serial.println(waterLevel);
       lights(247, 29, 5);
     }
   }
+
 }
 
 void lights(int red, int green, int blue) {
@@ -89,15 +104,18 @@ void lights(int red, int green, int blue) {
   FastLED.show();
 }
 
-int waterSensor() {
+void startSensors() {
   digitalWrite(WATER_PWR, HIGH);
+  digitalWrite(MOISTURE_PWR, HIGH);
+}
+
+int waterSensor() {
   int sensorValue = analogRead(WATER_PIN);
   digitalWrite(WATER_PWR, LOW);
   return sensorValue;
 }
 
 int moistureSensor() {
-  digitalWrite(MOISTURE_PWR, HIGH);
   int sensorValue = digitalRead(MOISTURE_PIN);
   digitalWrite(MOISTURE_PWR, LOW);
   return sensorValue;
