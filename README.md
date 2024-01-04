@@ -1,4 +1,4 @@
-# Automatický systém zavlažování rostlin
+# Samozavlažovací květináč
 
 ### Autor projektu: 
 Eliška Káňová
@@ -8,19 +8,17 @@ Tento projekt obsahuje automatický zavlažovací systém, jehož hodnoty lze sl
 
 ### Cíle projektu
 
- - [ ] **Vyvinout automatický zavlažovací systém:** Vytvořit funkční automatický zavlažovací systém schopný automaticky zásobovat rostliny vodou.
+ - [x] **Využití komponentů:** Začlenit do návrhu nezbytné komponenty, jako jsou Neopixel LED, senzor hladiny vody, senzor vlhkosti půdy a čerpadlo na vodu.
 
- - [ ] **Integrace mobilní aplikace:** Navázat spojení mezi automatickým zavlažovacím systémem a mobilní aplikací pro možnost vzdáleného monitorování a ovládání.
+ - [x] **Měření dvou senzorů:** Umožnit systému měřit a monitorovat hladinu vody i vlhkost půdy pomocí příslušných senzorů.
+      
+ - [x] **Vyvinout automatický zavlažovací systém:** Vytvořit funkční automatický zavlažovací systém schopný automaticky zásobovat rostliny vodou.
 
- - [ ] **Návrh obvodu na experimentálním panelu a tištěného spoje:** Navrhnout a implementovat jak obvod na experimentálním panelu, tak tištěný spoj.
-
- - [ ] **Měření dvou senzorů:** Umožnit systému měřit a monitorovat hladinu vody i vlhkost půdy pomocí příslušných senzorů.
-
- - [ ] **Plánované zavlažování:** Implementovat mechanismus plánování pro zavlažování rostlin v určených časových intervalech, zajistit optimální péči o rostliny.
-
- - [ ] **Využití komponentů:** Začlenit do návrhu nezbytné komponenty, jako jsou Neopixel LED, senzor hladiny vody, senzor vlhkosti půdy, spínač MOSFET a čerpadlo na vodu.
+ - [x] **Návrh obvodu na experimentálním panelu a tištěného spoje:** Navrhnout a implementovat jak obvod na experimentálním panelu, tak tištěný spoj.
 
  - [ ] **Zajištění správné funkcionality:** Ujistit se, že všechny komponenty systému pracují správně, aby byla zaručena efektivní péče o rostliny.
+
+ - [ ] **Home Assistant:**
 
 ### Konzultanti
  - Marcel Godovský
