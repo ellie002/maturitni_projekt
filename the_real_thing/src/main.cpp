@@ -1,6 +1,14 @@
 #include <FastLED.h>
 #include <Arduino.h>
+#include <PubSubClient.h>
+#include <ESP8266WiFi.h>
 
+#define wifi_ssid ""
+#define wifi_password ""
+#define mqtt_server "" 
+
+#define moisture_level_topic "sensor/moisture_level"
+#define water_level_topic "sensor/water_level"
 
 #define LED_PIN     15  // D8 pin - Wemos D1 Mini
 #define LED_COUNT   12  // Number of LEDs in your NeoPixel ring
@@ -37,9 +45,13 @@ int lastWaterLevelCheck;
 int waterLevel;
 int moistureLevel;
 
+WiFiClient Client;
+PubSubClient client(client);
+
 void setup() {
   Serial.begin(9600);
-  
+  client.setServer(mqtt_server, 1883);
+
   pinMode(WATER_PWR, OUTPUT);
   pinMode(WATER_PIN, INPUT);
   pinMode(MOISTURE_PWR, OUTPUT);
