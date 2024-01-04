@@ -1,4 +1,4 @@
-# Automatický systém zavlažování rostlin
+# Samozavlažovací květináč
 
 ### Autor projektu: 
 Eliška Káňová
