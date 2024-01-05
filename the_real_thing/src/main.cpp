@@ -5,7 +5,7 @@
 
 #define wifi_ssid ""
 #define wifi_password ""
-#define mqtt_server "" 
+#define mqtt_server "10.0.0.189" 
 
 #define moisture_level_topic "sensor/moisture_level"
 #define water_level_topic "sensor/water_level"
@@ -42,14 +42,19 @@ const unsigned long wateringDelay = 10000;
 
 int lastWaterLevelCheck;
 
+void connectWifi;
 int waterLevel;
 int moistureLevel;
+
 
 WiFiClient Client;
 PubSubClient client(client);
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
+
+  connectWifi();
+
   client.setServer(mqtt_server, 1883);
 
   pinMode(WATER_PWR, OUTPUT);
@@ -88,7 +93,10 @@ void loop() {
       Serial.println("She is happy:)");
     }else {
       Serial.println("SHE DRY, NEED WATER");
-      digitalWrite(WATER_PUMP, HIGH);
+      if (waterLevel >= WATER_MIN) {
+        digitalWrite(WATER_PUMP, HIGH);
+      }
+      
     }
   }
 
@@ -108,6 +116,24 @@ void loop() {
     }
   }
 
+}
+
+void connectWifi() {
+  WiFi.begin(wifi_ssid, wifi_password);
+
+  Serial.println("Připojuji se k Wifi");
+  
+  while (Wifi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  
+  Serial.println("");
+  Serial.println("Připojeno!");
+}
+
+void connectMQTT() {
+  
 }
 
 void lights(int red, int green, int blue) {
