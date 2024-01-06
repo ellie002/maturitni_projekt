@@ -3,9 +3,11 @@
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 
-#define wifi_ssid ""
-#define wifi_password ""
-#define mqtt_server "10.0.0.189" 
+#define wifi_ssid "Prokesova_laznet.cz"
+#define wifi_password "cestmir70"
+#define mqtt_server "192.68.56.1" 
+#define mqtt_user "kvetinac"
+#define mqtt_password "123456789"
 
 #define moisture_level_topic "sensor/moisture_level"
 #define water_level_topic "sensor/water_level"
@@ -31,18 +33,18 @@ void lights(int, int, int);
 void startSensors();
 int waterSensor();
 int moistureSensor();
+void connectWifi();
+void connectMQTT();
 
 unsigned long currentTime;
 unsigned long lastCheckSensor;
-const unsigned long delaySensor = 5000;
+const int delaySensor = 5000;
 const int delaySensorValue = 50;
 bool sensors = false;
 unsigned long wateringCheck;
-const unsigned long wateringDelay = 10000;
+const int wateringDelay = 10000;
 
 int lastWaterLevelCheck;
-
-void connectWifi;
 int waterLevel;
 int moistureLevel;
 
@@ -51,10 +53,10 @@ WiFiClient Client;
 PubSubClient client(client);
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
 
   connectWifi();
-
+  
   client.setServer(mqtt_server, 1883);
 
   pinMode(WATER_PWR, OUTPUT);
@@ -76,6 +78,9 @@ void setup() {
 
 void loop() {
   currentTime = millis();
+
+  if(WiFi.status()!=WL_CONNECTED) connectWifi();
+  //if(!client.connected()) connectMQTT();
 
   if (currentTime-lastCheckSensor >= delaySensor) {
     lastCheckSensor = currentTime;
@@ -123,17 +128,26 @@ void connectWifi() {
 
   Serial.println("Připojuji se k Wifi");
   
-  while (Wifi.status() != WL_CONNECTED) {
+  while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
   }
   
   Serial.println("");
-  Serial.println("Připojeno!");
+  Serial.println("Připojeno k WIFI");
 }
 
 void connectMQTT() {
-  
+  while(!client.connected()) {
+    Serial.println(ESP.getFreeHeap());
+    Serial.println("Am calling MQTT baby!");
+    if (client.connect("kvetinac", mqtt_user, mqtt_password)) {
+      Serial.println("Připojeno k MQTT");
+    }else {
+    Serial.println("Připojení selhalo, zkouším opakované připojení");
+    delay(5000);
+    }
+  }
 }
 
 void lights(int red, int green, int blue) {
