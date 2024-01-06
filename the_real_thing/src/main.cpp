@@ -5,7 +5,7 @@
 
 #define wifi_ssid "Prokesova_laznet.cz"
 #define wifi_password "cestmir70"
-#define mqtt_server "192.68.56.1" 
+#define mqtt_server "192.168.56.1" 
 #define mqtt_user "kvetinac"
 #define mqtt_password "123456789"
 
@@ -138,10 +138,9 @@ void connectWifi() {
 }
 
 void connectMQTT() {
-  while(!client.connected()) {
-    Serial.println(ESP.getFreeHeap());
+  while(!client.connected() && WiFi.status() == WL_CONNECTED) {
     Serial.println("Am calling MQTT baby!");
-    if (client.connect("kvetinac", mqtt_user, mqtt_password)) {
+    if (client.connect("esp8266", mqtt_user, mqtt_password)) {
       Serial.println("Připojeno k MQTT");
     }else {
     Serial.println("Připojení selhalo, zkouším opakované připojení");
