@@ -5,9 +5,9 @@
 
 #define wifi_ssid "Prokesova_laznet.cz"
 #define wifi_password "cestmir70"
-#define mqtt_server "192.168.1.103" 
-#define mqtt_user "homeassistant"
-#define mqtt_password "toagaithoeTh7fee2aa3lithib7Xaagichicheriesh8ahPh8eghae2Eeziekei5"
+#define mqtt_server  "192.168.1.103" 
+#define mqtt_user "mqtt-user"
+#define mqtt_password "123456789"
 
 #define moisture_level_topic "sensor/moisture_level"
 #define water_level_topic "sensor/water_level"
@@ -85,7 +85,7 @@ void loop() {
   currentTime = millis();
 
   if(WiFi.status()!=WL_CONNECTED) connectWifi();
-  //if(!client.connected()) connectMQTT();
+  if(!client.connected()) connectMQTT();
 
   if (currentTime-lastCheckSensor >= delaySensor) {
     lastCheckSensor = currentTime;
@@ -134,6 +134,8 @@ void loop() {
   }else{
     lights(138, 43, 226);
   }
+
+  client.loop();
 }
 
 void connectWifi() {
