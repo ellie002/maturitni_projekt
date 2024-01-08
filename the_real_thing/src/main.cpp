@@ -5,9 +5,9 @@
 
 #define wifi_ssid "Prokesova_laznet.cz"
 #define wifi_password "cestmir70"
-#define mqtt_server "192.168.56.1" 
-#define mqtt_user "kvetinac"
-#define mqtt_password "123456789"
+#define mqtt_server "192.168.1.103" 
+#define mqtt_user "homeassistant"
+#define mqtt_password "toagaithoeTh7fee2aa3lithib7Xaagichicheriesh8ahPh8eghae2Eeziekei5"
 
 #define moisture_level_topic "sensor/moisture_level"
 #define water_level_topic "sensor/water_level"
@@ -15,9 +15,13 @@
 #define LED_PIN     15  // D8 pin - Wemos D1 Mini
 #define LED_COUNT   12  // Number of LEDs in your NeoPixel ring
 #define BRIGHTNESS  45  // LED brightness (0-255 range)
+#define BRIGHT_LED 150    // Brightness of the other LEDs
+#define ANIMATION_DELAY 100 // Delay between LED changes in milliseconds
 #define WATER_MIN   50
 
 CRGB leds[LED_COUNT];
+
+CRGB currentColor;
 
 // Sensor pins
 #define WATER_PWR 14   // D5 pin - Wemos D1 Mini
@@ -26,9 +30,9 @@ CRGB leds[LED_COUNT];
 #define MOISTURE_PIN 5  // D1 pin
 #define WATER_PUMP 12   // D6 pin
 
-/* Define how long the pump will run (3 seconds) */
-#define PUMP_TIME 3000
+#define PUMP_TIME 6000
 
+void animateLights(unsigned long);
 void lights(int, int, int);
 void startSensors();
 int waterSensor();
@@ -39,8 +43,9 @@ void connectMQTT();
 unsigned long currentTime;
 unsigned long lastCheckSensor;
 const int delaySensor = 5000;
-const int delaySensorValue = 50;
+const int delaySensorValue = 500;
 bool sensors = false;
+bool pump = false;
 unsigned long wateringCheck;
 const int wateringDelay = 10000;
 
@@ -50,7 +55,7 @@ int moistureLevel;
 
 
 WiFiClient Client;
-PubSubClient client(client);
+PubSubClient client(Client);
 
 void setup() {
   Serial.begin(9600);
@@ -88,7 +93,7 @@ void loop() {
     startSensors();
   }else if(currentTime-lastCheckSensor >= delaySensorValue && sensors == true) {
     sensors = false;
-    waterLevel = waterSensor();
+    waterLevel = 55;
     moistureLevel = moistureSensor();
   }
 
@@ -100,6 +105,7 @@ void loop() {
       Serial.println("SHE DRY, NEED WATER");
       if (waterLevel >= WATER_MIN) {
         digitalWrite(WATER_PUMP, HIGH);
+        pump = true;
       }
       
     }
@@ -107,20 +113,27 @@ void loop() {
 
   if (currentTime-wateringCheck >= PUMP_TIME && currentTime-wateringCheck < wateringDelay) {
     digitalWrite(WATER_PUMP, LOW);
+    pump = false;
   }
 
   if (lastWaterLevelCheck != waterLevel) {
     lastWaterLevelCheck = waterLevel;
     if(waterLevel >= WATER_MIN) {
       Serial.println("Yea enough water baby");
-      lights(37, 112, 15);
     }else {
       Serial.println("ADD WATER NOW");
       Serial.println(waterLevel);
-      lights(247, 29, 5);
     }
   }
 
+  if(waterLevel < WATER_MIN) {
+    lights(255, 0, 0);
+  }else if(pump == true) {
+    currentColor = CRGB(0, 15, 0);
+    animateLights(currentTime);
+  }else{
+    lights(138, 43, 226);
+  }
 }
 
 void connectWifi() {
@@ -149,12 +162,27 @@ void connectMQTT() {
   }
 }
 
-void lights(int red, int green, int blue) {
-  CRGB color(red, green, blue);
-  fill_solid(leds, LED_COUNT, color);
-  FastLED.show();
+void animateLights(unsigned long currentMillis) {
+  static int currentLed = 0;
+  static unsigned long lastLAnimTime = 0;
+
+  if(currentMillis - lastLAnimTime >= ANIMATION_DELAY) {
+    for(int i = 0; i < LED_COUNT; i++) {
+      leds[i] = currentColor;
+    }
+
+    leds[currentLed] = CRGB(BRIGHT_LED, BRIGHT_LED, BRIGHT_LED);
+    FastLED.show();
+    currentLed = (currentLed + 1) % LED_COUNT;
+    lastLAnimTime = currentMillis;
+  }
 }
 
+void lights(int red, int green, int blue) {
+    currentColor = CRGB(red, green, blue);
+    fill_solid(leds, LED_COUNT, currentColor);
+    FastLED.show();
+}
 void startSensors() {
   digitalWrite(WATER_PWR, HIGH);
   digitalWrite(MOISTURE_PWR, HIGH);
