@@ -42,12 +42,16 @@ void connectMQTT();
 
 unsigned long currentTime;
 unsigned long lastCheckSensor;
+unsigned long wateringCheck;
+unsigned long lastPublish;
+
 const int delaySensor = 5000;
-const int delaySensorValue = 500;
+const int delaySensorValue = 10;
+const int wateringDelay = 10000;
+const int publishDelay = 10000; // Delay between publishing to MQTT. You can change it
+
 bool sensors = false;
 bool pump = false;
-unsigned long wateringCheck;
-const int wateringDelay = 10000;
 
 int lastWaterLevelCheck;
 int waterLevel;
@@ -93,7 +97,7 @@ void loop() {
     startSensors();
   }else if(currentTime-lastCheckSensor >= delaySensorValue && sensors == true) {
     sensors = false;
-    waterLevel = 55;
+    waterLevel = waterSensor();
     moistureLevel = moistureSensor();
   }
 
@@ -124,6 +128,13 @@ void loop() {
       Serial.println("ADD WATER NOW");
       Serial.println(waterLevel);
     }
+  }
+
+  if(currentTime-lastPublish >= publishDelay){
+    lastPublish = currentTime;
+    Serial.println("Publishing data to MQTT...");
+    client.publish(water_level_topic, String(waterLevel).c_str());
+    client.publish(moisture_level_topic, String(moistureLevel).c_str());
   }
 
   if(waterLevel < WATER_MIN) {
