@@ -46,8 +46,8 @@ unsigned long wateringCheck;
 unsigned long lastPublish;
 
 const int delaySensor = 5000;
-const int delaySensorValue = 10;
-const int wateringDelay = 10000;
+const int delaySensorValue = 500;
+const int wateringDelay = 300000;
 const int publishDelay = 10000; // Delay between publishing to MQTT. You can change it
 
 bool sensors = false;
@@ -64,7 +64,7 @@ PubSubClient client(Client);
 void setup() {
   Serial.begin(9600);
 
-  connectWifi();
+  //connectWifi();
   
   client.setServer(mqtt_server, 1883);
 
@@ -88,8 +88,8 @@ void setup() {
 void loop() {
   currentTime = millis();
 
-  if(WiFi.status()!=WL_CONNECTED) connectWifi();
-  if(!client.connected()) connectMQTT();
+  //if(WiFi.status()!=WL_CONNECTED) connectWifi();
+  //if(!client.connected()) connectMQTT();
 
   if (currentTime-lastCheckSensor >= delaySensor) {
     lastCheckSensor = currentTime;
@@ -109,14 +109,16 @@ void loop() {
       Serial.println("SHE DRY, NEED WATER");
       if (waterLevel >= WATER_MIN) {
         digitalWrite(WATER_PUMP, HIGH);
+        Serial.println("Zapinam pumpu");
         pump = true;
       }
       
     }
   }
 
-  if (currentTime-wateringCheck >= PUMP_TIME && currentTime-wateringCheck < wateringDelay) {
+  if (currentTime-wateringCheck >= PUMP_TIME && currentTime-wateringCheck < wateringDelay && pump == true) {
     digitalWrite(WATER_PUMP, LOW);
+    Serial.println("Vypinam pumpu");
     pump = false;
   }
 
