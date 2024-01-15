@@ -8,17 +8,15 @@ Tento projekt obsahuje automatický zavlažovací systém, jehož hodnoty lze sl
 
 ### Cíle projektu
 
- - [x] **Využití komponentů:** Začlenit do návrhu nezbytné komponenty, jako jsou Neopixel LED, senzor hladiny vody, senzor vlhkosti půdy a čerpadlo na vodu.
+ - [x] Byla úspěšně implementována funkcionalita senzorů pro monitorování vlhkosti půdy a hladiny vody v nádrži. 
 
- - [x] **Měření dvou senzorů:** Umožnit systému měřit a monitorovat hladinu vody i vlhkost půdy pomocí příslušných senzorů.
-      
- - [x] **Vyvinout automatický zavlažovací systém:** Vytvořit funkční automatický zavlažovací systém schopný automaticky zásobovat rostliny vodou.
+ - [x] Systém řídí zavlažování na základě naměřených hodnot. Pokud je zjištěna nedostatečná vlhkost půdy a zároveň dostatečná hladina vody v nádrži, spouští se čerpadlo pro zalití rostlin. 
 
- - [x] **Návrh obvodu na experimentálním panelu a tištěného spoje:** Navrhnout a implementovat jak obvod na experimentálním panelu, tak tištěný spoj.
+ - [x] Úspěšně navázána komunikace s MQTT brokerem, což umožňuje odesílání dat o úrovni hladiny vody na platformu Home Assistant. 
 
- - [ ] **Zajištění správné funkcionality:** Ujistit se, že všechny komponenty systému pracují správně, aby byla zaručena efektivní péče o rostliny.
+ - [x] Byl zakomponován plošný spoj pro efektivní propojení a řízení všech komponent včetně senzorů, čerpadla a mikrokontroléru. 
 
- - [ ] **Home Assistant:**
+ - [x] Bylo úspěšně provedeno fyzické zapojení hardwaru do 3D vytištěného modelu květináče, což přidává prvky estetiky a praktičnosti k celkovému provedení. 
 
 ### Konzultanti
  - Marcel Godovský
