@@ -4,7 +4,7 @@
 Eliška Káňová
 
 ### Popis projektu
-Tento projekt obsahuje automatický zavlažovací systém, jehož hodnoty lze sledovat prostřednictvím aplikace. Projekt zahrnuje jak obvod na experimentálním panelu, tak návrh tištěného spoje. Projekt měří hodnotu senzoru hladiny vody, hodnotu senzoru vlhkosti půdy a provozuje systém v určeném časovém intervalu, přičemž se provádí funkce automatického zavlažování. Obvod používá LED diodu Neopixel s ultrafialovým zářením, senzor měření hladiny vody, senzor měření vlhkosti půdy MOSFET, který slouží jako spínač pro aktivaci motoru, a samozřejmě motor čerpadla na vodu.
+Práce popisuje sestavení samozavlažovacího systému, jehož hodnoty jsou monitorovány pomocí platformy Home Assistant. Projekt zahrnuje jak obvod na nepájivém poli, tak vytisknutý plošný spoj. Měří hodnoty senzoru hladiny vody a senzoru vlhkosti, díky kterým program spouští funkci samozavlažování. Celý projekt je doplněn ultrafialovým světlem. 
 
 ### Cíle projektu
 
