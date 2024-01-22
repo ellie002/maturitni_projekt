@@ -4,7 +4,7 @@
 Adafruit_NeoPixel rgbWS = Adafruit_NeoPixel(NUM_OF_LED, INPUT_PIN, NEO_GRB + NEO_KHZ800);
 void setup() {
  rgbWS.begin();
- rgbWS.setBrightness(255); //max jas
+ rgbWS.setBrightness(255);
 }
 void loop() {
  // Zobrazení bílé

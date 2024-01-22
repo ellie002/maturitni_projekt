@@ -3,6 +3,7 @@
 #include <PubSubClient.h>
 #include <ESP8266WiFi.h>
 
+// Nastavení připojení k Wi-Fi a MQTT
 #define wifi_ssid "Prokesova_laznet.cz"
 #define wifi_password "cestmir70"
 #define mqtt_server  "192.168.1.103" 
@@ -12,26 +13,27 @@
 #define moisture_level_topic "sensor/moisture_level"
 #define water_level_topic "sensor/water_level"
 
-#define LED_PIN     15  // D8 pin - Wemos D1 Mini
-#define LED_COUNT   12  // Number of LEDs in your NeoPixel ring
-#define BRIGHTNESS  45  // LED brightness (0-255 range)
-#define BRIGHT_LED 150    // Brightness of the other LEDs
-#define ANIMATION_DELAY 100 // Delay between LED changes in milliseconds
+// Nastavení LED
+#define LED_PIN     15  // D8 pin
+#define LED_COUNT   12
+#define BRIGHTNESS  45
+#define BRIGHT_LED 150
+#define ANIMATION_DELAY 100
 #define WATER_MIN   50
 
 CRGB leds[LED_COUNT];
-
 CRGB currentColor;
 
-// Sensor pins
-#define WATER_PWR 14   // D5 pin - Wemos D1 Mini
+// Nastavení pinů pro senzory a čerpadlo
+#define WATER_PWR 14    // D5 pin
 #define WATER_PIN A0    // A0 pin
 #define MOISTURE_PWR 4  // D2 pin
 #define MOISTURE_PIN 5  // D1 pin
 #define WATER_PUMP 12   // D6 pin
 
-#define PUMP_TIME 6000
+#define PUMP_TIME 150000
 
+// Deklarace funkcí
 void animateLights(unsigned long);
 void lights(int, int, int);
 void startSensors();
@@ -40,15 +42,17 @@ int moistureSensor();
 void connectWifi();
 void connectMQTT();
 
+// Deklarace hodnot času
 unsigned long currentTime;
 unsigned long lastCheckSensor;
 unsigned long wateringCheck;
 unsigned long lastPublish;
 
+// Nastavení časových prodlev
 const int delaySensor = 5000;
 const int delaySensorValue = 500;
-const int wateringDelay = 300000;
-const int publishDelay = 10000; // Delay between publishing to MQTT. You can change it
+const int wateringDelay = 60000;
+const int publishDelay = 10000;
 
 bool sensors = false;
 bool pump = false;
@@ -57,28 +61,31 @@ int lastWaterLevelCheck;
 int waterLevel;
 int moistureLevel;
 
-
 WiFiClient Client;
 PubSubClient client(Client);
 
 void setup() {
   Serial.begin(9600);
 
-  //connectWifi();
+  // Připojení k Wi-Fi
+  connectWifi();
   
+  // Nastavení MQTT klienta
   client.setServer(mqtt_server, 1883);
 
+  // Inicializace pinů pro senzory a čerpadlo
   pinMode(WATER_PWR, OUTPUT);
   pinMode(WATER_PIN, INPUT);
   pinMode(MOISTURE_PWR, OUTPUT);
   pinMode(MOISTURE_PIN, INPUT);
   pinMode(WATER_PUMP, OUTPUT);
 
-  /* Initially keep the sensors and motor OFF */
+  // Vypnutí napájení senzorů a čerpadla
   digitalWrite(WATER_PWR, LOW);
   digitalWrite(MOISTURE_PWR, LOW);
   digitalWrite(WATER_PUMP, LOW);
 
+  // Inicializace LED
   FastLED.addLeds<NEOPIXEL, LED_PIN>(leds, LED_COUNT);
   FastLED.setBrightness(BRIGHTNESS);
   FastLED.show();
@@ -88,9 +95,13 @@ void setup() {
 void loop() {
   currentTime = millis();
 
-  //if(WiFi.status()!=WL_CONNECTED) connectWifi();
-  //if(!client.connected()) connectMQTT();
+  // Připojení k Wi-Fi
+  if(WiFi.status()!=WL_CONNECTED) connectWifi();
 
+  // Připojení k MQTT
+  if(!client.connected()) connectMQTT();
+
+  // Aktualizace senzorů
   if (currentTime-lastCheckSensor >= delaySensor) {
     lastCheckSensor = currentTime;
     sensors = true;
@@ -101,6 +112,7 @@ void loop() {
     moistureLevel = moistureSensor();
   }
 
+  // Kontrola stavu vlhkosti a spuštění čerpadla
   if (currentTime-wateringCheck >= wateringDelay) {
     wateringCheck = currentTime;
     if (moistureLevel == LOW) {
@@ -116,12 +128,14 @@ void loop() {
     }
   }
 
+  // Vypnutí čerpadla
   if (currentTime-wateringCheck >= PUMP_TIME && currentTime-wateringCheck < wateringDelay && pump == true) {
     digitalWrite(WATER_PUMP, LOW);
     Serial.println("Vypinam pumpu");
     pump = false;
   }
 
+  // Kontrola hladiny vody
   if (lastWaterLevelCheck != waterLevel) {
     lastWaterLevelCheck = waterLevel;
     if(waterLevel >= WATER_MIN) {
@@ -132,6 +146,7 @@ void loop() {
     }
   }
 
+  // Odeslání dat na MQTT
   if(currentTime-lastPublish >= publishDelay){
     lastPublish = currentTime;
     Serial.println("Publishing data to MQTT...");
@@ -139,6 +154,7 @@ void loop() {
     client.publish(moisture_level_topic, String(moistureLevel).c_str());
   }
 
+  // Osvětlení LED
   if(waterLevel < WATER_MIN) {
     lights(255, 0, 0);
   }else if(pump == true) {
@@ -148,9 +164,11 @@ void loop() {
     lights(138, 43, 226);
   }
 
+  // Aktualizace stavu MQTT klienta
   client.loop();
 }
 
+// Připojení k Wi-Fi
 void connectWifi() {
   WiFi.begin(wifi_ssid, wifi_password);
 
@@ -165,6 +183,7 @@ void connectWifi() {
   Serial.println("Připojeno k WIFI");
 }
 
+// Připojení k MQTT
 void connectMQTT() {
   while(!client.connected() && WiFi.status() == WL_CONNECTED) {
     Serial.println("Am calling MQTT baby!");
@@ -177,6 +196,7 @@ void connectMQTT() {
   }
 }
 
+// Animace LED podle stavu čerpadla
 void animateLights(unsigned long currentMillis) {
   static int currentLed = 0;
   static unsigned long lastLAnimTime = 0;
@@ -193,22 +213,27 @@ void animateLights(unsigned long currentMillis) {
   }
 }
 
+// Barva LED
 void lights(int red, int green, int blue) {
     currentColor = CRGB(red, green, blue);
     fill_solid(leds, LED_COUNT, currentColor);
     FastLED.show();
 }
+
+// Zapnutí senzorů
 void startSensors() {
   digitalWrite(WATER_PWR, HIGH);
   digitalWrite(MOISTURE_PWR, HIGH);
 }
 
+// Čtení hodnoty senzoru hladiny vody
 int waterSensor() {
   int sensorValue = analogRead(WATER_PIN);
   digitalWrite(WATER_PWR, LOW);
   return sensorValue;
 }
 
+// Čtení hodnoty senzoru vlhkosti
 int moistureSensor() {
   int sensorValue = digitalRead(MOISTURE_PIN);
   digitalWrite(MOISTURE_PWR, LOW);

@@ -1,5 +1,4 @@
 #include <Arduino.h>
-
 #define MOTORPIN 12
 
 int mode = 0;
